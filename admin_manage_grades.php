@@ -19,7 +19,7 @@ $students_query = "SELECT * FROM students";
 $students_result = mysqli_query($db, $students_query);
 
 // Fetch all subjects
-$subjects_query = "SELECT id, subject_name FROM subjects"; // Correct column name used here
+$subjects_query = "SELECT id, subject_name FROM subjects";
 $subjects_result = mysqli_query($db, $subjects_query);
 $subjects = [];
 while ($row = mysqli_fetch_assoc($subjects_result)) {
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Grades</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="admin_dashboard.css">
     <style>
         /* Table Styling */
@@ -80,79 +80,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: bold;
         }
 
-        h2, h3 {
-            margin-top: 10px;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
+        h3 {
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-<div class="navbar">
-    <a href="admin_dashboard.php">Dashboard</a>
-    <a href="admin_manage_students.php">Manage Students</a>
-    <a href="admin_manage_grades.php">Manage Grades</a>
-    <a href="logout.php">Logout</a>
+
+    <!-- Navbar -->
+    <div class="navbar">
+    <a href="#" class="logo">Admin Dashboard</a>
+    <div class="links">
+        <a href="admin_dashboard.php">Home</a>
+        <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
+        <a href="admin_manage_grades.php">Manage Grades</a>
+        <a href="admin_manage_attendance.php">Manage Attendance</a>
+        <a href="logout.php" class="logout-btn">Logout</a>
+    </div>
+
 </div>
-
-<h2>Manage Grades</h2>
-<form method="POST" action="admin_manage_grades.php">
-    <table>
-        <tr>
-            <th>Student ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <?php foreach ($subjects as $subject): ?>
-                <th><?= htmlspecialchars($subject['subject_name']); ?></th>
-            <?php endforeach; ?>
-            <th>Total Grade</th>
-            <th>Percentage</th>
-        </tr>
-        <?php while ($student = mysqli_fetch_assoc($students_result)): ?>
+<!-- Main Content -->
+<div class="content">
+    <h2>Manage Grades</h2>
+    <form method="POST" action="admin_manage_grades.php">
+        <table>
             <tr>
-                <td><?= htmlspecialchars($student['id']); ?></td>
-                <td><?= htmlspecialchars($student['first_name']); ?></td>
-                <td><?= htmlspecialchars($student['last_name']); ?></td>
-                <?php
-                $total_grade = 0;
-                $max_grade_per_subject = 100; // Change this if your max grade per subject is different
-                $num_subjects = count($subjects);
-
-                foreach ($subjects as $subject): 
-                    $grade_query = "SELECT grade FROM grades WHERE student_id = '{$student['id']}' AND subject_id = '{$subject['id']}'";
-                    $grade_result = mysqli_query($db, $grade_query);
-                    $grade_row = mysqli_fetch_assoc($grade_result);
-                    $grade = $grade_row['grade'] ?? '';
-                    $total_grade += is_numeric($grade) ? $grade : 0;
-                ?>
-                    <td>
-                        <input type="text" name="grades[<?= $student['id']; ?>][<?= $subject['id']; ?>]" 
-                               value="<?= htmlspecialchars($grade); ?>">
-                    </td>
+                <th>Student ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <?php foreach ($subjects as $subject): ?>
+                    <th><?= htmlspecialchars($subject['subject_name']); ?></th>
                 <?php endforeach; ?>
-                <td><?= $total_grade; ?></td>
-                <td>
-                    <?php
-                    $max_total_grade = $max_grade_per_subject * $num_subjects;
-                    $percentage = $max_total_grade > 0 ? ($total_grade / $max_total_grade) * 100 : 0;
-                    echo number_format($percentage, 2) . '%';
-                    ?>
-                </td>
+                <th>Total Percentage</th>
             </tr>
-        <?php endwhile; ?>
-    </table>
-    <button type="submit">Save Grades</button>
-</form>
+            <?php while ($student = mysqli_fetch_assoc($students_result)): ?>
+                <tr>
+                    <td><?= htmlspecialchars($student['id']); ?></td>
+                    <td><?= htmlspecialchars($student['first_name']); ?></td>
+                    <td><?= htmlspecialchars($student['last_name']); ?></td>
+                    <?php 
+                        $total_grade = 0;
+                        $subject_count = count($subjects);
+                    ?>
+                    <?php foreach ($subjects as $subject): ?>
+                        <td>
+                            <input type="text" name="grades[<?= $student['id']; ?>][<?= $subject['id']; ?>]" 
+                                   value="<?php
+                                       $grade_query = "SELECT grade FROM grades WHERE student_id = '{$student['id']}' AND subject_id = '{$subject['id']}'";
+                                       $grade_result = mysqli_query($db, $grade_query);
+                                       $grade_row = mysqli_fetch_assoc($grade_result);
+                                       $grade = $grade_row['grade'] ?? '';
+                                       $total_grade += (float)$grade;
+                                       echo htmlspecialchars($grade);
+                                   ?>">
+                        </td>
+                    <?php endforeach; ?>
+                    <td>
+                        <?= $subject_count > 0 ? round(($total_grade / $subject_count), 2) . '%' : 'N/A'; ?>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+        <button type="submit">Save Grades</button>
+    </form>
+</div>
 </body>
 </html>

@@ -1,0 +1,93 @@
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
+}
+
+.navbar .logo {
+    color: #fff;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.navbar .links a {
+    color: #fff;
+    margin-left: 15px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.navbar .logout-btn {
+    background-color: #f44336;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* Content Styles */
+.content {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 10px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Section Styles */
+.section-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.section {
+    flex: 1 1 calc(30% - 20px);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 250px;
+}
+
+.section h3 {
+    text-align: center;
+    font-size: 18px;
+    background-color: #ddd;
+    padding: 10px;
+    margin: -10px -10px 10px -10px;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

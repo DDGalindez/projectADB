@@ -24,14 +24,15 @@ if (isset($_POST['add_student'])) {
     $first_name = mysqli_real_escape_string($db, $_POST['first_name']);
     $last_name = mysqli_real_escape_string($db, $_POST['last_name']);
     $email = mysqli_real_escape_string($db, $_POST['email']);
+    $section = mysqli_real_escape_string($db, $_POST['section']); // Get the selected section
 
     // Ensure the student fields are not empty
-    if (empty($student_id) || empty($first_name) || empty($last_name) || empty($email)) {
+    if (empty($student_id) || empty($first_name) || empty($last_name) || empty($email) || empty($section)) {
         echo "All fields are required!";
     } else {
         // Insert the new student into the database
-        $insert_student_query = "INSERT INTO students (id, first_name, last_name, email) 
-                                  VALUES ('$student_id', '$first_name', '$last_name', '$email')";
+        $insert_student_query = "INSERT INTO students (id, first_name, last_name, email, section) 
+                                  VALUES ('$student_id', '$first_name', '$last_name', '$email', '$section')";
 
         if (mysqli_query($db, $insert_student_query)) {
             // Get the student ID of the newly inserted student
@@ -74,16 +75,16 @@ mysqli_close($db);
 
     <!-- Navbar -->
     <div class="navbar">
-    <a href="#" class="logo">Admin Dashboard</a>
-    <div class="links">
-        <a href="admin_dashboard.php">Home</a>
-        <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
-        <a href="admin_manage_grades.php">Manage Students</a>
-        <a href="admin_attendance.php">Manage Attendance</a>
-        <a href="logout.php" class="logout-btn">Logout</a>
+        <a href="#" class="logo">Admin Dashboard</a>
+        <div class="links">
+            <a href="admin_dashboard.php">Home</a>
+            <a href="admin_pending_enrollments.php">Pending Enrollments</a>
+            <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
+            <a href="admin_manage_grades.php">Manage Grades</a>
+            <a href="admin_manage_attendance.php">Manage Attendance</a>
+            <a href="logout.php" class="logout-btn">Logout</a>
+        </div>
     </div>
-</div>
-
 
     <!-- Main Content -->
     <div class="content">
@@ -105,6 +106,16 @@ mysqli_close($db);
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
+            <label for="section">Section:</label>
+            <select id="section" name="section" required>
+                <option value="">Select Section</option>
+                <option value="1">Section 1</option>
+                <option value="2">Section 2</option>
+                <option value="3">Section 3</option>
+                <option value="4">Section 4</option>
+                <option value="5">Section 5</option>
+            </select>
+
             <button type="submit" name="add_student">Add Student</button>
         </form>
 
@@ -117,6 +128,7 @@ mysqli_close($db);
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
+                    <th>Section</th>
                     <th>Actions</th>
                 </tr>
                 <?php while($row = mysqli_fetch_assoc($students_result)): ?>
@@ -125,6 +137,7 @@ mysqli_close($db);
                         <td><?php echo $row['first_name']; ?></td>
                         <td><?php echo $row['last_name']; ?></td>
                         <td><?php echo $row['email']; ?></td>
+                        <td><?php echo $row['section']; ?></td> <!-- Display Section -->
                         <td>
                             <a href="edit_student.php?id=<?php echo $row['id']; ?>">Edit</a> |
                             <a href="delete_student.php?id=<?php echo $row['id']; ?>">Delete</a>
