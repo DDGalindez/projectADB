@@ -51,6 +51,7 @@ if (isset($_GET['section'])) {
         <div class="links">
             <a href="admin_dashboard.php">Home</a>
             <a href="admin_pending_enrollments.php">Pending Enrollments</a>
+            <a href="admin_manage_subject.php">Manage Subject</a>
             <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
             <a href="admin_manage_grades.php">Manage Grades</a>
             <a href="admin_manage_attendance.php">Manage Attendance</a>

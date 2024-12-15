@@ -40,7 +40,7 @@ if (isset($_POST['reg_user'])) {
     $result = mysqli_query($db, $user_check_query);
     $user = mysqli_fetch_assoc($result);
 
-    if ($user) {
+    if ($user) { // If user exists
         if ($user['username'] === $username) {
             array_push($errors, "Username already exists");
         }
@@ -59,7 +59,13 @@ if (isset($_POST['reg_user'])) {
 
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;
-        header('location: index.php'); // Redirect to homepage after registration
+
+        // Redirect based on role
+        if ($role == 'admin') {
+            header('location: admin_dashboard.php');
+        } else {
+            header('location: student_dashboard.php');
+        }
     }
 }
 
@@ -87,6 +93,7 @@ if (isset($_POST['login_user'])) {
             if (password_verify($password, $user['password'])) {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
+                $_SESSION['user_id'] = $user['id']; // Assuming 'id' is the primary key for users
 
                 // Redirect based on role
                 if ($role == 'admin') {
@@ -102,5 +109,4 @@ if (isset($_POST['login_user'])) {
         }
     }
 }
-
 ?>

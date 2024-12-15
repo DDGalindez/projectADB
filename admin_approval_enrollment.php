@@ -29,14 +29,15 @@ if (isset($_GET['id'])) {
 
     // If form is submitted
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = mysqli_real_escape_string($db, $_POST['username']);
         $section = mysqli_real_escape_string($db, $_POST['section']);
 
-        // Validate that admin has filled in all fields
-        if (empty($username) || empty($section)) {
-            echo "<p style='color:red;'>Error: Username and Section are required.</p>";
+        // Validate that the section is selected
+        if (empty($section)) {
+            echo "<p style='color:red;'>Error: Section is required.</p>";
         } else {
             // Check if username already exists in the students table
+            $username = $pending_data['username'];  // Use the username from the pending enrollment data
+
             $check_query = "SELECT * FROM students WHERE username = '$username'";
             $check_result = mysqli_query($db, $check_query);
             if (mysqli_num_rows($check_result) > 0) {
@@ -44,7 +45,7 @@ if (isset($_GET['id'])) {
             } else {
                 // Insert the approved student into the students table
                 $insert_query = "INSERT INTO students (username, first_name, last_name, email, section) 
-                                VALUES ('$username', '{$pending_data['first_name']}', '{$pending_data['last_name']}', '{$pending_data['email']}', '$section')";
+                                 VALUES ('$username', '{$pending_data['first_name']}', '{$pending_data['last_name']}', '{$pending_data['email']}', '$section')";
                 if (mysqli_query($db, $insert_query)) {
                     // Delete the pending enrollment record
                     $delete_query = "DELETE FROM pending_enrollments WHERE id = $id";
@@ -83,8 +84,8 @@ mysqli_close($db);
         <p><strong>Last Name:</strong> <?php echo htmlspecialchars($pending_data['last_name']); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($pending_data['email']); ?></p>
 
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
+        <!-- Display the username automatically from the pending enrollment -->
+        <p><strong>Username:</strong> <?php echo htmlspecialchars($pending_data['username']); ?></p>
 
         <label for="section">Section:</label><br>
         <select id="section" name="section" required>

@@ -1,4 +1,7 @@
-<?php include('server.php'); ?>
+<?php
+include('server.php');  // This will handle login logic
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,7 +14,7 @@
   </div>
 
   <form method="post" action="login.php">
-    <?php include('errors.php'); ?>
+    <?php include('errors.php'); ?>  <!-- Display errors if any -->
     <div class="input-group">
       <label>Username</label>
       <input type="text" name="username" required>

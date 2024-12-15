@@ -1,32 +1,53 @@
 <?php
 session_start();
 
-// Check if the user is logged in as a student
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'student') {
+// Check if user is an admin
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
     header('location: login.php');
     exit();
 }
 
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'project');
-
-if ($db->connect_error) {
-    die("Connection failed: " . $db->connect_error);
+if (!$db) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
-// Fetch subjects for the student
-$student_query = "SELECT * FROM students WHERE email = '" . $_SESSION['username'] . "'";
-$student_result = mysqli_query($db, $student_query);
-$student = mysqli_fetch_assoc($student_result);
+// Handle the subject addition form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_subject'])) {
+    $subject_name = mysqli_real_escape_string($db, $_POST['subject_name']);
+    $description = mysqli_real_escape_string($db, $_POST['description']);
+    $file_path = "";
 
-// Fetch subjects the student is enrolled in
-$subjects_query = "SELECT s.subject_name FROM subjects s 
-                   JOIN enrollments e ON s.id = e.subject_id
-                   WHERE e.student_id = '" . $student['id'] . "'";
+    // Handle file upload
+    if (isset($_FILES['subject_file']) && $_FILES['subject_file']['error'] == 0) {
+        $file_name = $_FILES['subject_file']['name'];
+        $file_tmp = $_FILES['subject_file']['tmp_name'];
+        $file_path = 'uploads/' . basename($file_name);
+
+        // Move the uploaded file to the 'uploads' directory
+        if (move_uploaded_file($file_tmp, $file_path)) {
+            echo "File uploaded successfully.";
+        } else {
+            echo "Failed to upload file.";
+        }
+    }
+
+    // Insert subject data into the database
+    $insert_query = "INSERT INTO subjects (subject_name, description, file_path) 
+                     VALUES ('$subject_name', '$description', '$file_path')";
+
+    if (mysqli_query($db, $insert_query)) {
+        echo "Subject added successfully.";
+    } else {
+        echo "Error: " . mysqli_error($db);
+    }
+}
+
+// Fetch existing subjects from the database
+$subjects_query = "SELECT * FROM subjects";
 $subjects_result = mysqli_query($db, $subjects_query);
 
-// Close the database connection
-mysqli_close($db);
 ?>
 
 <!DOCTYPE html>
@@ -34,36 +55,73 @@ mysqli_close($db);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Subjects</title>
-    <link rel="stylesheet" href="admin_dashboard.css">
+    <title>Admin Manage Subjects</title>
+    <link rel="stylesheet" href="admin_styles.css">
 </head>
 <body>
-
-    <!-- Navbar -->
     <div class="navbar">
-        <a href="#" class="logo">Student Dashboard</a>
+        <a href="#" class="logo">Admin Dashboard</a>
         <div class="links">
-            <a href="student_dashboard.php">Home</a>
-            <a href="student_profile.php">View Profile</a>
-            <a href="student_manage_subjects.php">Manage Subjects</a>
-            <a href="student_view_grades.php">View Grades</a>
+            <a href="admin_dashboard.php">Home</a>
+            <a href="admin_manage_subjects.php">Manage Subjects</a>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="content">
-        <h2>Your Subjects</h2>
-        <?php if (mysqli_num_rows($subjects_result) > 0): ?>
-            <ul>
-                <?php while ($subject = mysqli_fetch_assoc($subjects_result)): ?>
-                    <li><?php echo $subject['subject_name']; ?></li>
-                <?php endwhile; ?>
-            </ul>
-        <?php else: ?>
-            <p>You are not enrolled in any subjects.</p>
-        <?php endif; ?>
-    </div>
+        <h2>Manage Subjects</h2>
 
+        <!-- Add Subject Form -->
+        <h3>Add New Subject</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="subject_name">Subject Name:</label>
+            <input type="text" name="subject_name" required>
+
+            <label for="description">Description:</label>
+            <textarea name="description" required></textarea>
+
+            <label for="subject_file">Upload File:</label>
+            <input type="file" name="subject_file" accept=".pdf, .docx, .pptx">
+
+            <button type="submit" name="add_subject">Add Subject</button>
+        </form>
+
+        <!-- List of Existing Subjects -->
+        <h3>Existing Subjects</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject Name</th>
+                    <th>Description</th>
+                    <th>File</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = mysqli_fetch_assoc($subjects_result)): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['subject_name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['description']); ?></td>
+                        <td>
+                            <?php if ($row['file_path']): ?>
+                                <a href="<?php echo $row['file_path']; ?>" target="_blank">View File</a>
+                            <?php else: ?>
+                                No file uploaded
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="edit_subject.php?id=<?php echo $row['id']; ?>">Edit</a> |
+                            <a href="delete_subject.php?id=<?php echo $row['id']; ?>">Delete</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
+
+<?php
+// Close the database connection
+mysqli_close($db);
+?>

@@ -9,9 +9,8 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
 
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'project');
-
-if ($db->connect_error) {
-    die("Connection failed: " . $db->connect_error);
+if (!$db) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 // Fetch subjects for automatic association
@@ -87,6 +86,7 @@ mysqli_close($db);
         <div class="links">
             <a href="admin_dashboard.php">Home</a>
             <a href="admin_pending_enrollments.php">Pending Enrollments</a>
+            <a href="admin_manage_subject.php">Manage Subject</a>
             <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
             <a href="admin_manage_grades.php">Manage Grades</a>
             <a href="admin_manage_attendance.php">Manage Attendance</a>
@@ -137,6 +137,17 @@ mysqli_close($db);
             <input type="text" name="search_input" placeholder="Search by ID, First Name, or Last Name">
             <button type="submit" name="search">Search</button>
         </form>
+
+        <!-- Feedback Messages -->
+        <?php if (isset($_SESSION['message'])): ?>
+            <div class="success"><?php echo $_SESSION['message']; ?></div>
+            <?php unset($_SESSION['message']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error"><?php echo $_SESSION['error']; ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
         <!-- Students Section -->
         <h3>Student Records</h3>
