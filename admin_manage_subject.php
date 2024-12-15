@@ -84,10 +84,12 @@ mysqli_close($db);
     <div class="navbar">
         <a href="#" class="logo">Student Dashboard</a>
         <div class="links">
-            <a href="student_dashboard.php">Home</a>
-            <a href="student_profile.php">View Profile</a>
-            <a href="student_manage_subjects.php">Manage Subjects</a>
-            <a href="student_grades.php">View Grades</a>
+            <a href="admin_dashboard.php">Home</a>
+            <a href="admin_pending_enrollments.php">Pending Enrollments</a>
+            <a href="admin_manage_subject.php">Manage Subject</a>
+            <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
+            <a href="admin_manage_grades.php">Manage Grades</a>
+            <a href="admin_manage_attendance.php">Manage Attendance</a>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
