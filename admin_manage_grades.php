@@ -89,13 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Navbar -->
     <div class="navbar">
-    <a href="#" class="logo">Admin Dashboard</a>
-    <div class="links">
-        <a href="admin_dashboard.php">Home</a>
-        <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
-        <a href="admin_manage_grades.php">Manage Grades</a>
-        <a href="admin_manage_attendance.php">Manage Attendance</a>
-        <a href="logout.php" class="logout-btn">Logout</a>
+        <a href="#" class="logo">Admin Dashboard</a>
+        <div class="links">
+            <a href="admin_dashboard.php">Home</a>
+            <a href="admin_pending_enrollments.php">Pending Enrollments</a>
+            <a href="admin_manage_students.php">Manage Students</a> <!-- Added Manage Students link -->
+            <a href="admin_manage_grades.php">Manage Grades</a>
+            <a href="admin_manage_attendance.php">Manage Attendance</a>
+            <a href="logout.php" class="logout-btn">Logout</a>
+        </div>
     </div>
 
 </div>

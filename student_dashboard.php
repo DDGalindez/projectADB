@@ -9,16 +9,9 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'student') {
 
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'project');
-
 if ($db->connect_error) {
     die("Connection failed: " . $db->connect_error);
 }
-
-// Fetch student data
-$student_id = $_SESSION['student_id'];  // Assuming student_id is stored in session
-$query = "SELECT * FROM students WHERE id = '$student_id'";
-$result = mysqli_query($db, $query);
-$student = mysqli_fetch_assoc($result);
 
 // Handle the enrollment form submission
 if (isset($_POST['enroll'])) {
@@ -27,8 +20,8 @@ if (isset($_POST['enroll'])) {
     $email = mysqli_real_escape_string($db, $_POST['email']);
 
     // Insert into pending enrollments table
-    $insert_enrollment = "INSERT INTO pending_enrollments (first_name, last_name, email) 
-                          VALUES ('$first_name', '$last_name', '$email')";
+    $insert_enrollment = "INSERT INTO pending_enrollments (first_name, last_name, email, status) 
+                          VALUES ('$first_name', '$last_name', '$email', 'pending')";
 
     if (mysqli_query($db, $insert_enrollment)) {
         echo "Enrollment request submitted successfully!";
@@ -64,11 +57,11 @@ mysqli_close($db);
 
     <!-- Main Content -->
     <div class="content">
-        <h2>Welcome, <?php echo $student['first_name']; ?>!</h2>
+        <h2>Welcome, <?php echo $_SESSION['username']; ?>!</h2>
 
         <h3>Enrollment Form</h3>
         <p>Fill in your details to request enrollment:</p>
-        
+
         <form method="POST" action="student_dashboard.php">
             <label for="first_name">First Name:</label>
             <input type="text" id="first_name" name="first_name" required>

@@ -9,66 +9,92 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
 
 // Database connection
 $db = mysqli_connect('localhost', 'root', '', 'project');
-
-if (!$db) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($db->connect_error) {
+    die("Connection failed: " . $db->connect_error);
 }
 
-// Fetch pending enrollments
-$query = "SELECT * FROM pending_enrollments";
+// Fetch all pending enrollments
+$query = "SELECT * FROM pending_enrollments WHERE status = 'pending'";
 $result = mysqli_query($db, $query);
-?>
 
+// Check if there are any pending enrollments
+$pending_enrollments = [];
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $pending_enrollments[] = $row;
+    }
+} else {
+    $message = "No pending enrollments found.";
+}
+
+mysqli_close($db);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Enrollments</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="admin_dashboard.css">
+    <style>
+        /* Center the content */
+        .approval-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .approval-container p {
+            text-align: center;
+        }
+        .approval-container a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .approval-container a:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navbar -->
     <div class="navbar">
-        <a href="admin_dashboard.php" class="logo">Admin Dashboard</a>
+        <a href="#" class="logo">Admin Dashboard</a>
         <div class="links">
             <a href="admin_dashboard.php">Home</a>
             <a href="admin_pending_enrollments.php">Pending Enrollments</a>
-            <a href="admin_manage_students.php">Manage Students</a>
-            <a href="admin_manage_courses.php">Manage Courses</a>
+            <a href="admin_manage_students.php">Manage Students</a> 
+            <a href="admin_manage_grades.php">Manage Grades</a>
+            <a href="admin_manage_attendance.php">Manage Attendance</a>
             <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="content">
+    <div class="approval-container">
         <h2>Pending Enrollments</h2>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['first_name']; ?></td>
-                        <td><?php echo $row['last_name']; ?></td>
-                        <td><?php echo $row['email']; ?></td>
-                        <td>
-                            <a href="approve_enrollment.php?id=<?php echo $row['id']; ?>">Approve</a> | 
-                            <a href="delete_enrollment.php?id=<?php echo $row['id']; ?>">Delete</a>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+
+        <?php
+        if (isset($message)) {
+            echo "<p>$message</p>";
+        } else {
+            foreach ($pending_enrollments as $row) {
+                echo "<p>";
+                echo "First Name: " . $row['first_name'] . "<br>";
+                echo "Last Name: " . $row['last_name'] . "<br>";
+                echo "Email: " . $row['email'] . "<br>";
+                echo "<a href='admin_approval_enrollment.php?id=" . $row['id'] . "'>Approve Enrollment</a>";
+                echo "</p><hr>";
+            }
+        }
+        ?>
     </div>
 
 </body>

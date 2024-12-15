@@ -24,15 +24,16 @@ if (isset($_POST['add_student'])) {
     $first_name = mysqli_real_escape_string($db, $_POST['first_name']);
     $last_name = mysqli_real_escape_string($db, $_POST['last_name']);
     $email = mysqli_real_escape_string($db, $_POST['email']);
+    $username = mysqli_real_escape_string($db, $_POST['username']); // Get the manually added username
     $section = mysqli_real_escape_string($db, $_POST['section']); // Get the selected section
 
     // Ensure the student fields are not empty
-    if (empty($student_id) || empty($first_name) || empty($last_name) || empty($email) || empty($section)) {
+    if (empty($student_id) || empty($first_name) || empty($last_name) || empty($email) || empty($username) || empty($section)) {
         echo "All fields are required!";
     } else {
         // Insert the new student into the database
-        $insert_student_query = "INSERT INTO students (id, first_name, last_name, email, section) 
-                                  VALUES ('$student_id', '$first_name', '$last_name', '$email', '$section')";
+        $insert_student_query = "INSERT INTO students (id, first_name, last_name, email, username, section) 
+                                  VALUES ('$student_id', '$first_name', '$last_name', '$email', '$username', '$section')";
 
         if (mysqli_query($db, $insert_student_query)) {
             // Get the student ID of the newly inserted student
@@ -55,8 +56,15 @@ if (isset($_POST['add_student'])) {
     }
 }
 
-// Fetch students for display
-$students_query = "SELECT * FROM students";
+// Handle search functionality
+$search_query = "";
+if (isset($_POST['search'])) {
+    $search_input = mysqli_real_escape_string($db, $_POST['search_input']);
+    $search_query = "WHERE id LIKE '%$search_input%' OR first_name LIKE '%$search_input%' OR last_name LIKE '%$search_input%'";
+}
+
+// Fetch students for display based on search
+$students_query = "SELECT * FROM students $search_query";
 $students_result = mysqli_query($db, $students_query);
 
 // Close the database connection
@@ -106,6 +114,10 @@ mysqli_close($db);
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
+            <!-- New Fields for Username and Section -->
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
             <label for="section">Section:</label>
             <select id="section" name="section" required>
                 <option value="">Select Section</option>
@@ -119,6 +131,13 @@ mysqli_close($db);
             <button type="submit" name="add_student">Add Student</button>
         </form>
 
+        <!-- Search Bar -->
+        <h3>Search Students</h3>
+        <form method="POST" action="admin_dashboard.php">
+            <input type="text" name="search_input" placeholder="Search by ID, First Name, or Last Name">
+            <button type="submit" name="search">Search</button>
+        </form>
+
         <!-- Students Section -->
         <h3>Student Records</h3>
         <?php if (mysqli_num_rows($students_result) > 0): ?>
@@ -128,6 +147,7 @@ mysqli_close($db);
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
+                    <th>Username</th>
                     <th>Section</th>
                     <th>Actions</th>
                 </tr>
@@ -137,6 +157,7 @@ mysqli_close($db);
                         <td><?php echo $row['first_name']; ?></td>
                         <td><?php echo $row['last_name']; ?></td>
                         <td><?php echo $row['email']; ?></td>
+                        <td><?php echo $row['username']; ?></td>
                         <td><?php echo $row['section']; ?></td> <!-- Display Section -->
                         <td>
                             <a href="edit_student.php?id=<?php echo $row['id']; ?>">Edit</a> |
